@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import java.util.Arrays;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,9 +28,11 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final Environment environment;
 
-    public SecurityConfig(UserRepository userRepository) {
+    public SecurityConfig(UserRepository userRepository, Environment environment) {
         this.userRepository = userRepository;
+        this.environment = environment;
     }
 
     @Bean
@@ -57,11 +61,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
+
         http
-            .csrf(csrf -> csrf.disable())
-            .requiresChannel(channel -> channel
-                .anyRequest().requiresSecure()
-            )
+            .csrf(csrf -> csrf.disable());
+
+        if (!isProd) {
+            http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
+        }
+
+        http
             .headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin())
             )
