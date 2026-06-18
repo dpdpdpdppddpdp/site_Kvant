@@ -1,0 +1,13 @@
+meta:
+  environment: jvm
+  toolVersion: maven
+  version: "17"
+
+build:
+  args: clean package -DskipTests
+
+run:
+  args: --spring.profiles.active=prod
+  jarName: kvant-crm-1.0.0.jar
+  persistenceMount: /data
+  containerPort: 8080
