@@ -10,7 +10,7 @@ build:
     target/*.jar: /
 run:
   image: null
-  args: -Dspring.profiles.active=prod
+  args: null
   jarName: kvant-crm-1.0.0.jar
   persistenceMount: /data
   containerPort: "80"
