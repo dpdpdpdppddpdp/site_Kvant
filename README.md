@@ -1,309 +1,195 @@
-# Kvant CRM - Система управления строительной компанией
+# Kvant CRM — Система управления строительной компанией
 
-## Описание проекта
-
-Система управления строительной компанией с динамическим контентом, системой пользователей и административной панелью.
+Веб-приложение для строительной компании с лендингом, системой заявок, личным кабинетом пользователя и административной панелью.
 
 ## Технологии
 
 ### Backend
 - **Java 17**
 - **Spring Boot 3.1.5**
-- **Spring Security** - аутентификация и авторизация
-- **Spring Data JPA** - работа с базой данных
-- **Hibernate** - ORM
-- **SQLite** - база данных
-- **Maven** - управление зависимостями
+- **Spring Security** — аутентификация, авторизация, принудительный HTTPS
+- **Spring Data JPA / Hibernate** — ORM, работа с базой данных
+- **PostgreSQL** — реляционная база данных (3НФ)
+- **HikariCP** — пул соединений с БД
+- **Maven** — управление зависимостями
+- **JavaMailSender** — отправка email с кодом верификации (SMTP mail.ru)
 
 ### Frontend
-- **HTML5** - разметка
-- **CSS3** - стилизация
-- **JavaScript** - интерактивность
-- **Fetch API** - взаимодействие с бэкендом
+- **HTML5 / CSS3 / JavaScript** — разметка, стили, интерактивность
+- **Fetch API** — взаимодействие с REST API
+
+### Безопасность
+- **HTTPS / TLS** — шифрование трафика (порт 8443), самоподписанный сертификат (PKCS12)
+- **HTTP → HTTPS редирект** — порт 8081 автоматически перенаправляет на 8443
+- **BCrypt** — хеширование паролей
+- **JSESSIONID** — сессионные cookie для аутентификации
 
 ## Структура проекта
 
 ```
 kvant_diplom/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/kvant/
-│   │   │       ├── config/          # Конфигурация Spring
-│   │   │       ├── controller/      # REST контроллеры
-│   │   │       ├── entity/          # Сущности базы данных
-│   │   │       ├── repository/      # Репозитории JPA
-│   │   │       ├── security/        # Безопасность
-│   │   │       └── service/         # Бизнес-логика
-│   │   └── resources/
-│   │       ├── application.properties # Конфигурация приложения
-│   │       └── static/              # Статические файлы
-│   │           ├── index.html       # Лендинг страница
-│   │           ├── login.html       # Страница входа
-│   │           ├── register.html    # Страница регистрации
-│   │           ├── profile.html     # Личный кабинет
-│   │           ├── admin.html       # Админ панель (заявки)
-│   │           └── cms.html         # CMS панель (контент)
-└── pom.xml                           # Maven конфигурация
+├── src/main/
+│   ├── java/com/kvant/
+│   │   ├── config/          # SecurityConfig, HttpsRedirectConfig, WebConfig
+│   │   ├── controller/      # REST контроллеры (Auth, Lead, Content, User, ...)
+│   │   ├── dto/             # DTO объекты
+│   │   ├── entity/          # JPA сущности (User, Lead, Client, Employee, Project, ...)
+│   │   ├── repository/      # Spring Data репозитории
+│   │   ├── security/        # CustomAuthenticationFailureHandler
+│   │   └── service/         # Бизнес-логика (Lead, Email, Content, Excel, ...)
+│   └── resources/
+│       ├── application.properties
+│       └── static/
+│           ├── index.html       # Лендинг
+│           ├── login.html       # Вход
+│           ├── register.html    # Регистрация (с email-верификацией)
+│           ├── profile.html     # Личный кабинет
+│           ├── projects.html    # Страница проектов
+│           ├── admin.html       # Панель заявок (ADMIN)
+│           ├── cms.html         # CMS-панель контента (ADMIN)
+│           ├── css/             # Стили
+│           ├── js/              # Скрипты
+│           └── images/          # Изображения проектов
+└── pom.xml
 ```
 
 ## Требования
 
-- **Java 17** или выше
-- **Maven 3.6** или выше
-- **Любой современный браузер**
+- **Java 17+**
+- **Maven 3.6+**
+- **PostgreSQL 14+** (локальный или удалённый)
 
 ## Установка и запуск
 
-### 1. Клонирование проекта
+### 1. Клонировать репозиторий
 
 ```bash
-cd c:/Users/Otez/Desktop/kvant/kvant_diplom
+git clone https://github.com/dpdpdpdppddpdp/site_Kvant.git
+cd site_Kvant
 ```
 
-### 2. Сборка проекта
+### 2. Создать базу данных PostgreSQL
 
-```bash
-mvn clean package
+```sql
+CREATE DATABASE kvant_db;
 ```
 
-### 3. Запуск приложения
+### 3. Настроить подключение
+
+Отредактировать `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/kvant_db
+spring.datasource.username=postgres
+spring.datasource.password=ВАШ_ПАРОЛЬ
+
+spring.mail.host=smtp.mail.ru
+spring.mail.port=465
+spring.mail.username=ВАШ_EMAIL
+spring.mail.password=ВАШ_ПАРОЛЬ_ПРИЛОЖЕНИЯ
+```
+
+### 4. Запуск
 
 ```bash
 mvn spring-boot:run
 ```
 
-Приложение будет доступно по адресу: http://localhost:8081
+Приложение запустится на **https://localhost:8443**
+Запросы на http://localhost:8081 автоматически редиректятся на HTTPS.
 
-### 4. Создание администратора
+> При первом открытии браузер покажет предупреждение о самоподписанном сертификате — нажмите «Дополнительно → Перейти на сайт».
 
-После запуска приложения создайте первого администратора через API:
-
-```bash
-curl -X POST http://localhost:8081/api/auth/create-admin \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "admin123",
-    "email": "admin@kvant.ru",
-    "firstName": "Admin",
-    "lastName": "User",
-    "phone": "+79294259774"
-  }'
-```
-
-Или через PowerShell:
+### 5. Создание администратора
 
 ```powershell
-Invoke-WebRequest -Uri http://localhost:8081/api/auth/create-admin `
+Invoke-WebRequest -Uri https://localhost:8443/api/auth/create-admin `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"username":"admin","password":"admin123","email":"admin@kvant.ru","firstName":"Admin","lastName":"User","phone":"+79294259774"}'
 ```
 
-## Использование
+## Страницы приложения
 
-### Страницы приложения
-
-- **http://localhost:8081/** - Лендинг страница
-- **http://localhost:8081/login.html** - Страница входа
-- **http://localhost:8081/register.html** - Страница регистрации
-- **http://localhost:8081/profile.html** - Личный кабинет пользователя
-- **http://localhost:8081/admin.html** - Админ панель (заявки)
-- **http://localhost:8081/cms.html** - CMS панель (управление контентом)
-
-### Регистрация пользователя
-
-1. Перейдите на http://localhost:8081/register.html
-2. Заполните форму регистрации:
-   - Имя пользователя (минимум 3 символа)
-   - Email
-   - Пароль (минимум 8 символов)
-   - Подтверждение пароля
-   - Имя (необязательно)
-   - Фамилия (необязательно)
-3. Нажмите "Зарегистрироваться"
-
-### Вход в систему
-
-1. Перейдите на http://localhost:8081/login.html
-2. Введите имя пользователя и пароль
-3. Нажмите "Войти"
-
-### Личный кабинет
-
-После входа вы попадете в личный кабинет, где можно:
-- Просматривать и редактировать личные данные
-- Менять пароль
-- Просматривать информацию аккаунта
-
-### Административная панель
-
-Администратор имеет доступ к:
-- **Панель заявок** (http://localhost:8081/admin.html):
-  - Просмотр всех заявок
-  - Экспорт заявок в Excel
-  - Автообновление списка заявок
-
-- **CMS панель** (http://localhost:8081/cms.html):
-  - Редактирование контента сайта
-  - Создание нового контента
-  - Удаление контента
-  - Инициализация дефолтного контента
-
-- **Управление пользователями** (через API):
-  - Просмотр всех пользователей
-  - Редактирование пользователей
-  - Блокировка/разблокировка пользователей
-  - Сброс паролей
+| URL | Описание | Доступ |
+|-----|----------|--------|
+| `https://localhost:8443/` | Лендинг с формой заявки | Все |
+| `https://localhost:8443/login.html` | Вход в систему | Все |
+| `https://localhost:8443/register.html` | Регистрация с email-верификацией | Все |
+| `https://localhost:8443/profile.html` | Личный кабинет | USER, ADMIN |
+| `https://localhost:8443/projects.html` | Портфолио проектов | Все |
+| `https://localhost:8443/admin.html` | Управление заявками | ADMIN |
+| `https://localhost:8443/cms.html` | Редактирование контента сайта | ADMIN |
 
 ## API Endpoints
 
 ### Аутентификация
-
-- `POST /api/auth/register` - Регистрация пользователя
-- `POST /api/auth/create-admin` - Создание администратора
-- `GET /api/auth/check-username?username={username}` - Проверка уникальности имени пользователя
-- `GET /api/auth/check-email?email={email}` - Проверка уникальности email
-- `GET /api/auth/me` - Получение информации о текущем пользователе
-- `PUT /api/auth/update-profile` - Обновление профиля
-- `POST /api/auth/change-password` - Смена пароля
-
-### Управление пользователями (только для администраторов)
-
-- `GET /api/users` - Получение всех пользователей
-- `GET /api/users/{id}` - Получение пользователя по ID
-- `PUT /api/users/{id}` - Обновление пользователя
-- `DELETE /api/users/{id}` - Удаление пользователя
-- `POST /api/users/{id}/block` - Блокировка пользователя
-- `POST /api/users/{id}/unblock` - Разблокировка пользователя
-- `POST /api/users/{id}/reset-password` - Сброс пароля пользователя
-
-### Управление контентом
-
-- `GET /api/content` - Получение всего контента
-- `GET /api/content/section/{section}` - Получение контента по секции
-- `GET /api/content/key/{key}` - Получение контента по ключу
-- `POST /api/content` - Создание контента (только для администраторов)
-- `PUT /api/content/key/{key}` - Обновление контента по ключу (только для администраторов)
-- `PUT /api/content/{id}` - Обновление контента по ID (только для администраторов)
-- `DELETE /api/content/{id}` - Удаление контента (только для администраторов)
-- `POST /api/content/initialize` - Инициализация дефолтного контента (только для администраторов)
+- `POST /api/auth/send-code` — отправить код верификации на email
+- `POST /api/auth/register` — регистрация с подтверждением кода
+- `POST /api/auth/register-direct` — регистрация без email-верификации
+- `POST /api/auth/create-admin` — создание администратора
+- `GET /api/auth/me` — текущий пользователь
+- `PUT /api/auth/update-profile` — обновление профиля
+- `POST /api/auth/change-password` — смена пароля
+- `GET /api/auth/check-username` — проверка уникальности username
+- `GET /api/auth/check-email` — проверка уникальности email
 
 ### Заявки
+- `POST /api/leads` — создать заявку
+- `GET /api/leads` — все заявки (ADMIN)
+- `GET /api/leads/my` — заявки текущего пользователя
+- `PUT /api/leads/{id}` — обновить статус заявки (ADMIN)
+- `GET /api/leads/export` — экспорт в Excel (ADMIN)
 
-- `POST /api/leads` - Создание заявки
-- `GET /api/leads` - Получение всех заявок
-- `GET /api/leads/export` - Экспорт заявок в Excel
+### Контент
+- `GET /api/content` — весь контент
+- `GET /api/content/key/{key}` — контент по ключу
+- `GET /api/content/section/{section}` — контент по секции
+- `PUT /api/content/key/{key}` — обновить (ADMIN)
+- `POST /api/content/initialize` — инициализация дефолтного контента (ADMIN)
+
+### Пользователи (ADMIN)
+- `GET /api/users` — все пользователи
+- `PUT /api/users/{id}` — обновить пользователя
+- `DELETE /api/users/{id}` — удалить пользователя
+- `POST /api/users/{id}/block` — заблокировать
+- `POST /api/users/{id}/unblock` — разблокировать
 
 ## Безопасность
 
-### Реализованные меры безопасности
+- **HTTPS** — весь трафик шифруется TLS (порт 8443), HTTP (8081) редиректит на HTTPS
+- **BCrypt** — пароли хранятся в хешированном виде
+- **Session cookie** — аутентификация через JSESSIONID
+- **Ролевая модель** — ADMIN и USER с разными правами доступа
+- **Email-верификация** — при регистрации отправляется 6-значный код (действителен 10 минут)
+- **Защита эндпоинтов** — `@PreAuthorize`, `requiresSecure()` в Spring Security
 
-1. **Хеширование паролей** - Использование BCrypt для хеширования паролей
-2. **CSRF защита** - CSRF защита включена для форм, отключена для API
-3. **Ограничение попыток входа** - CustomAuthenticationFailureHandler для обработки неудачных попыток
-4. **Ролевая авторизация** - Разделение прав доступа между ADMIN и USER
-5. **Валидация данных** - Проверка корректности данных на клиенте и сервере
-6. **Уникальность пользователей** - Проверка уникальности email и username
+## База данных
 
-### Роли пользователей
+PostgreSQL, схема в **3НФ**. Таблицы: `users`, `leads`, `clients`, `employees`, `projects`, `sessions`, `site_content`.
 
-- **ADMIN** - Полный доступ ко всем функциям системы
-- **USER** - Доступ только к личному кабинету
-
-## Конфигурация
-
-Конфигурация приложения находится в файле `src/main/resources/application.properties`:
-
-```properties
-# Сервер
-server.port=8081
-
-# База данных SQLite
-spring.datasource.url=jdbc:sqlite:kvant.db
-spring.datasource.driver-class-name=org.sqlite.JDBC
-
-# JPA / Hibernate
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.community.dialect.SQLiteDialect
-
-# Email настройки
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-
-# Email администратора
-admin.email=info@kvant.ru
-```
-
-## Динамический контент
-
-Контент сайта хранится в базе данных и может быть изменен администратором через CMS панель. Контент автоматически обновляется на сайте каждые 5 минут.
-
-### Ключи контента
-
-- `hero_title` - Заголовок hero секции
-- `hero_subtitle` - Подзаголовок hero секции
-- `hero_cta` - Текст кнопки в hero секции
-- `stats_projects` - Количество проектов
-- `stats_experience` - Опыт работы
-- `stats_satisfaction` - Удовлетворенность клиентов
-- `stats_clients` - Количество клиентов
-- `contact_phone` - Телефон компании
-- `contact_email` - Email компании
-- `contact_address` - Адрес компании
+Hibernate управляет схемой автоматически (`ddl-auto=update`).
 
 ## Устранение неполадок
 
 ### Порт уже занят
-
-Если порт 8081 уже занят, измените его в `application.properties`:
-
-```properties
-server.port=8082
-```
-
-Или остановите процесс, занимающий порт:
-
 ```powershell
-netstat -ano | findstr :8081
-taskkill /PID <PID> /F
+Get-Process -Name java | Stop-Process -Force
 ```
 
-### Ошибка базы данных
+### Пересоздать схему БД
+Изменить в `application.properties`:
+```properties
+spring.jpa.hibernate.ddl-auto=create
+```
+После первого запуска вернуть на `update`.
 
-Если возникли проблемы с базой данных, удалите файл `kvant.db` и перезапустите приложение. База данных будет создана заново.
-
-### Ошибка отправки email
-
-Для работы email уведомлений нужно:
-1. Включить двухфакторную аутентификацию в Gmail
-2. Создать пароль приложения
-3. Указать email и пароль приложения в `application.properties`
-
-## Разработка
-
-### Добавление нового контента
-
-1. Войдите в систему как администратор
-2. Перейдите на http://localhost:8081/cms.html
-3. Нажмите "Инициализировать контент" для создания базового контента
-4. Редактируйте контент по необходимости
-
-### Добавление нового API endpoint
-
-1. Создайте метод в соответствующем контроллере
-2. Добавьте аннотации `@GetMapping`, `@PostMapping` и т.д.
-3. При необходимости добавьте `@PreAuthorize` для защиты endpoint
+### Ошибка email
+Используется SMTP mail.ru (порт 465, SSL). Убедитесь что включён «пароль приложения» в настройках почты.
 
 ## Лицензия
 
-Проект создан для учебных целей.
+Проект создан в учебных целях.
 
 ## Контакты
 
