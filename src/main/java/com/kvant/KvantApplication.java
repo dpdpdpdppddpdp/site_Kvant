@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableAsync
 public class KvantApplication {
     public static void main(String[] args) {
+        System.setProperty("java.net.preferIPv6Addresses", "true");
         SpringApplication.run(KvantApplication.class, args);
     }
 
