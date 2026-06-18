@@ -1,6 +1,8 @@
 # Kvant CRM — Система управления строительной компанией
 
-Веб-приложение для строительной компании: публичный лендинг с формой заявки, личный кабинет пользователя, административная панель заявок и CMS для редактирования контента сайта.
+Веб-приложение для строительной компании: публичный лендинг с формой заявки, личный кабинет пользователя, административная панель и CMS для редактирования контента сайта.
+
+**Продакшн:** [https://kvant-aga.amvera.io](https://kvant-aga.amvera.io)
 
 ---
 
@@ -10,10 +12,11 @@
 2. [Структура проекта](#структура-проекта)
 3. [Требования](#требования)
 4. [Запуск проекта](#запуск-проекта)
-5. [Страницы и API](#страницы-и-api)
-6. [Особенности разработки](#особенности-разработки)
-7. [Тестирование](#тестирование)
-8. [Устранение неполадок](#устранение-неполадок)
+5. [Деплой на Amvera](#деплой-на-amvera)
+6. [Страницы и API](#страницы-и-api)
+7. [Особенности разработки](#особенности-разработки)
+8. [Тестирование](#тестирование)
+9. [Устранение неполадок](#устранение-неполадок)
 
 ---
 
@@ -25,10 +28,10 @@
 |---|---|---|
 | Java | 17 | Основной язык |
 | Spring Boot | 3.1.5 | Фреймворк приложения |
-| Spring Security | 6.x | Аутентификация, авторизация, HTTPS |
+| Spring Security | 6.x | Аутентификация и авторизация |
 | Spring Data JPA | 3.x | Работа с БД через репозитории |
 | Hibernate | 6.2 | ORM, генерация SQL |
-| PostgreSQL | 14+ | Реляционная база данных |
+| PostgreSQL | 17 | Реляционная база данных |
 | HikariCP | встроен | Пул соединений с БД |
 | JavaMailSender | встроен | Отправка email (SMTP) |
 | Apache POI | 5.x | Генерация Excel-отчётов |
@@ -44,15 +47,15 @@
 | Fetch API | Асинхронные HTTP-запросы к бэкенду |
 | SVG-иконки | Встроенные векторные иконки без сторонних библиотек |
 
-### Безопасность и инфраструктура
+### Инфраструктура
 
 | Технология | Назначение |
 |---|---|
-| TLS / HTTPS | Шифрование трафика, порт 8443 |
-| PKCS12 (keystore.p12) | Самоподписанный SSL-сертификат |
+| Amvera Cloud | Хостинг приложения (JVM-среда, порт 80) |
+| CloudNativePG (CNPG) | Управляемый PostgreSQL 17 на Amvera |
 | BCrypt | Хеширование паролей |
 | JSESSIONID cookie | Сессионная аутентификация |
-| SMTP mail.ru (порт 465, SSL) | Отправка кодов верификации |
+| SMTP mail.ru (порт 465, SSL) | Отправка email-уведомлений |
 
 ---
 
@@ -60,21 +63,20 @@
 
 ```
 kvant_diplom/
+├── amvera.yml                   # Конфигурация деплоя на Amvera
 ├── pom.xml
 └── src/main/
     ├── java/com/kvant/
     │   ├── config/
-    │   │   ├── SecurityConfig.java        # Spring Security + HTTPS
-    │   │   ├── HttpsRedirectConfig.java   # HTTP → HTTPS редирект
-    │   │   ├── DatabaseMigration.java     # Инициализация данных при старте
-    │   │   └── WebConfig.java             # CORS и MVC настройки
+    │   │   ├── SecurityConfig.java
+    │   │   └── WebConfig.java
     │   ├── controller/
     │   │   ├── AuthController.java        # Регистрация, вход, профиль
     │   │   ├── LeadController.java        # Заявки
+    │   │   ├── ClientController.java      # Клиенты
+    │   │   ├── ProjectController.java     # Проекты
     │   │   ├── SiteContentController.java # CMS контент
-    │   │   ├── UserManagementController.java
-    │   │   ├── ClientController.java
-    │   │   └── ProjectController.java
+    │   │   └── UserManagementController.java # Управление пользователями
     │   ├── dto/
     │   │   └── LeadRequestDto.java
     │   ├── entity/
@@ -96,18 +98,16 @@ kvant_diplom/
     │       ├── ClientService.java
     │       └── ProjectService.java
     └── resources/
-        ├── application.properties
+        ├── application.properties           # Базовый профиль (локальный)
+        ├── application-prod.properties      # Продакшн профиль (Amvera)
         └── static/
             ├── index.html        # Лендинг
             ├── login.html        # Вход
             ├── register.html     # Регистрация
             ├── profile.html      # Личный кабинет
             ├── projects.html     # Портфолио
-            ├── admin.html        # Панель заявок (ADMIN)
-            ├── cms.html          # CMS контента (ADMIN)
-            ├── css/style.css
-            ├── js/main.js
-            └── images/projects/  # Фотографии объектов
+            ├── admin.html        # Административная панель (ADMIN)
+            └── cms.html          # CMS контента (ADMIN)
 ```
 
 ---
@@ -122,12 +122,12 @@ kvant_diplom/
 
 ## Запуск проекта
 
-### Вариант 1 — Локальный запуск через Maven
+### Локальный запуск
 
 **Шаг 1.** Клонировать репозиторий:
 ```bash
 git clone https://github.com/dpdpdpdppddpdp/site_Kvant.git
-cd site_Kvant
+cd site_Kvant/kvant_diplom
 ```
 
 **Шаг 2.** Создать базу данных:
@@ -135,7 +135,7 @@ cd site_Kvant
 CREATE DATABASE kvant_db;
 ```
 
-**Шаг 3.** Задать параметры подключения в `src/main/resources/application.properties`:
+**Шаг 3.** Задать параметры в `src/main/resources/application.properties`:
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/kvant_db
 spring.datasource.username=postgres
@@ -147,53 +147,67 @@ spring.mail.username=ВАШ_EMAIL
 spring.mail.password=ВАШ_ПАРОЛЬ_ПРИЛОЖЕНИЯ
 ```
 
-**Шаг 4.** Запустить приложение:
+**Шаг 4.** Запустить:
 ```bash
 mvn spring-boot:run
 ```
 
-Приложение будет доступно по адресу: **https://localhost:8443**
+Приложение доступно по адресу: **http://localhost:8080**
+
+При первом запуске автоматически создаётся администратор: `admin` / `admin123`.
 
 ---
 
-### Вариант 2 — Сборка JAR и запуск
+## Деплой на Amvera
+
+Приложение задеплоено на [Amvera Cloud](https://amvera.ru) и доступно по адресу **https://kvant-aga.amvera.io**.
+
+### Конфигурация (`amvera.yml`)
+
+```yaml
+meta:
+  environment: jvm
+  toolchain:
+    name: maven
+    version: "17"
+build:
+  args: clean package -DskipTests
+  artifacts:
+    target/*.jar: /
+run:
+  jarName: kvant-crm-1.0.0.jar
+  persistenceMount: /data
+  containerPort: "80"
+  servicePort: "80"
+```
+
+### Переменные окружения на Amvera
+
+| Переменная | Значение |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` |
+| `SERVER_PORT` | `80` |
+| `SSL_ENABLED` | `false` |
+| `DB_URL` | `jdbc:postgresql://amvera-aga-cnpg-kvant-db-rw:5432/kvantDB` |
+| `DB_USERNAME` | имя пользователя БД |
+| `DB_PASSWORD` | пароль БД |
+| `MAIL_USERNAME` | email для SMTP |
+| `MAIL_PASSWORD` | пароль приложения SMTP |
+| `JAVA_TOOL_OPTIONS` | `-Djava.net.preferIPv4Stack=true` |
+
+### База данных
+
+Используется **CloudNativePG PostgreSQL 17** внутри Amvera (проект `kvant-db`).
+Хост внутри кластера: `amvera-aga-cnpg-kvant-db-rw`.
+Схема создаётся автоматически Hibernate при первом старте (`ddl-auto=update`).
+
+### Обновление деплоя
 
 ```bash
-# Собрать JAR-файл
-mvn clean package -DskipTests
-
-# Запустить собранный JAR
-java -jar target/kvant-crm-1.0.0.jar
+git push origin main
 ```
 
----
-
-### Вариант 3 — Запуск на Windows через PowerShell
-
-```powershell
-# Остановить предыдущий запущенный процесс (если есть)
-Get-Process -Name java -ErrorAction SilentlyContinue | Stop-Process -Force
-
-# Запустить в фоне с выводом логов в файл
-Start-Process -FilePath "mvn" `
-  -ArgumentList "spring-boot:run", "-f", "pom.xml" `
-  -RedirectStandardOutput "run.log" `
-  -NoNewWindow
-```
-
----
-
-### После запуска — создание первого администратора
-
-```powershell
-Invoke-WebRequest -Uri "https://localhost:8443/api/auth/create-admin" `
-  -Method POST `
-  -ContentType "application/json" `
-  -Body '{"username":"admin","password":"admin123","email":"admin@kvant.ru","firstName":"Admin","lastName":"User","phone":"+79294259774"}'
-```
-
-> **Примечание:** При первом открытии браузер покажет предупреждение о самоподписанном сертификате.
-> Нажмите «Дополнительно» → «Перейти на сайт» (chrome) или «Принять риск» (firefox).
+После push — нажать **«Пересобрать»** в дашборде Amvera.
 
 ---
 
@@ -203,13 +217,13 @@ Invoke-WebRequest -Uri "https://localhost:8443/api/auth/create-admin" `
 
 | URL | Описание | Доступ |
 |-----|----------|--------|
-| `https://localhost:8443/` | Лендинг с формой заявки | Все |
-| `https://localhost:8443/login.html` | Вход в систему | Все |
-| `https://localhost:8443/register.html` | Регистрация с email-верификацией | Все |
-| `https://localhost:8443/profile.html` | Личный кабинет | USER, ADMIN |
-| `https://localhost:8443/projects.html` | Портфолио проектов | Все |
-| `https://localhost:8443/admin.html` | Управление заявками | ADMIN |
-| `https://localhost:8443/cms.html` | Редактирование контента | ADMIN |
+| `/` | Лендинг с формой заявки | Все |
+| `/login.html` | Вход в систему | Все |
+| `/register.html` | Регистрация с email-верификацией | Все |
+| `/profile.html` | Личный кабинет | USER, MANAGER, ADMIN |
+| `/projects.html` | Портфолио проектов | Все |
+| `/admin.html` | Административная панель | ADMIN |
+| `/cms.html` | Редактирование контента | ADMIN |
 
 ### REST API
 
@@ -259,13 +273,16 @@ Invoke-WebRequest -Uri "https://localhost:8443/api/auth/create-admin" `
 <details>
 <summary><b>Управление пользователями</b></summary>
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/api/users` | Все пользователи |
-| PUT | `/api/users/{id}` | Обновить пользователя |
-| DELETE | `/api/users/{id}` | Удалить пользователя |
-| POST | `/api/users/{id}/block` | Заблокировать |
-| POST | `/api/users/{id}/unblock` | Разблокировать |
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| GET | `/api/users` | Все пользователи | ADMIN |
+| POST | `/api/users` | Создать пользователя | ADMIN |
+| GET | `/api/users/{id}` | Пользователь по ID | ADMIN |
+| PUT | `/api/users/{id}` | Обновить пользователя | ADMIN |
+| DELETE | `/api/users/{id}` | Удалить пользователя | ADMIN |
+| POST | `/api/users/{id}/block` | Заблокировать | ADMIN |
+| POST | `/api/users/{id}/unblock` | Разблокировать | ADMIN |
+| POST | `/api/users/{id}/reset-password` | Сбросить пароль | ADMIN |
 
 </details>
 
@@ -275,108 +292,95 @@ Invoke-WebRequest -Uri "https://localhost:8443/api/auth/create-admin" `
 
 ### Архитектура
 - Монолитное Spring Boot приложение по паттерну **Controller → Service → Repository**
-- Нет шаблонизаторов (Thymeleaf и т.п.) — фронтенд полностью на статических HTML/JS файлах, взаимодействующих с бэкендом через REST API
+- Фронтенд — статические HTML/JS файлы, взаимодействуют с бэкендом через REST API (без Thymeleaf)
+- Два Spring-профиля: `default` (локальный) и `prod` (Amvera)
 
 ### База данных
-- **PostgreSQL** в **третьей нормальной форме (3НФ)**: нет транзитивных зависимостей, все FK явные
-- Схема управляется Hibernate (`ddl-auto=update`) — таблицы создаются и мигрируются автоматически при старте
+- **PostgreSQL 17** в **третьей нормальной форме (3НФ)**
+- Схема управляется Hibernate (`ddl-auto=update`) — таблицы создаются автоматически при старте
 - Пул соединений **HikariCP** (встроен в Spring Boot)
 
 ### Безопасность
-- Весь трафик шифруется по **HTTPS/TLS** (порт 8443). HTTP (порт 8081) отдаёт редирект 302 на HTTPS
-- SSL-сертификат — самоподписанный **PKCS12**, генерируется через `keytool`
-- Пароли хранятся только в хешированном виде (**BCrypt**, strength=10)
-- Аутентификация — через сессионные cookie **JSESSIONID**, сессия хранится в памяти сервера
-- Регистрация двухшаговая: сначала на email отправляется **6-значный код** (действителен 10 минут), затем подтверждение
+- Пароли хранятся в хешированном виде (**BCrypt**, strength=10)
+- Аутентификация через сессионные cookie **JSESSIONID**
+- Регистрация двухшаговая: на email отправляется **6-значный код** (действителен 10 минут)
 
-### CMS (управление контентом)
-- Контент сайта (заголовки, телефон, адрес и т.д.) хранится в таблице `site_content` в виде пар ключ–значение
-- Редактирование прямо на превью страницы — клик по тексту открывает inline-редактор
-- Изменения сохраняются в БД и мгновенно отображаются на сайте
+### CMS
+- Контент сайта хранится в таблице `site_content` в виде пар ключ–значение
+- Редактирование на превью страницы — клик по тексту открывает inline-редактор
+- Изменения сохраняются в БД и сразу отображаются на сайте
 
 ### Frontend
-- Без фреймворков — чистый **Vanilla JS** (ES6+)
-- Адаптивная вёрстка на **CSS Grid и Flexbox**, без Bootstrap
-- Иконки — встроенные **SVG** (нет зависимости от иконочных шрифтов)
-- Анимации появления элементов — **IntersectionObserver API**
+- Чистый **Vanilla JS** (ES6+), без фреймворков
+- Адаптивная вёрстка на **CSS Grid и Flexbox** — работает на мобильных, планшетах и десктопе
+- Бургер-меню для экранов до 1024px
+- Анимации появления — **IntersectionObserver API**
 
 ---
 
 ## Тестирование
 
-Ниже приведены ручные сценарии проверки ключевых функций.
-
 ### 1. Регистрация пользователя
 
 ```
-1. Открыть https://localhost:8443/register.html
+1. Открыть /register.html
 2. Заполнить форму: username, email, password (мин. 8 символов)
 3. Нажать "Отправить код" — на email придёт 6-значный код
-4. Ввести код в поле и нажать "Подтвердить"
+4. Ввести код и нажать "Подтвердить"
 Ожидаемый результат: редирект на /login.html
 ```
 
 ### 2. Вход и личный кабинет
 
 ```
-1. Открыть https://localhost:8443/login.html
-2. Ввести username и password → нажать "Войти"
+1. Открыть /login.html, ввести username и password
 Ожидаемый результат:
-  - Роль USER → редирект на /profile.html
+  - Роль USER/MANAGER → редирект на /profile.html
   - Роль ADMIN → редирект на /admin.html
 ```
 
 ### 3. Отправка заявки
 
 ```
-1. Открыть https://localhost:8443/ (лендинг)
+1. Открыть / (лендинг)
 2. Заполнить форму "Оставить заявку" (имя, телефон, услуга)
 3. Нажать "Отправить"
-Ожидаемый результат: сообщение об успехе, заявка появляется в /admin.html
+Ожидаемый результат: сообщение об успехе, заявка появляется в /admin.html,
+на email администратора приходит уведомление
 ```
 
 ### 4. Административная панель
 
 ```
-1. Войти как ADMIN
-2. Открыть https://localhost:8443/admin.html
+1. Войти как admin / admin123
+2. Открыть /admin.html
 3. Проверить список заявок, изменить статус одной из них
-4. Нажать "Экспорт Excel" — скачается .xlsx файл с заявками
+4. Нажать "Экспорт Excel" — скачается .xlsx файл
 ```
 
 ### 5. CMS — редактирование контента
 
 ```
-1. Войти как ADMIN, открыть https://localhost:8443/cms.html
-2. Вкладка "Конструктор": кликнуть на любой текст в превью → откроется редактор
+1. Войти как ADMIN, открыть /cms.html
+2. Кликнуть на любой текст в превью → откроется редактор
 3. Изменить текст, нажать "Сохранить"
 Ожидаемый результат: текст обновился на лендинге без перезапуска сервера
 ```
 
-### 6. Проверка защиты маршрутов
+### 6. Создание сотрудника
 
 ```
-Без авторизации попробовать открыть:
-  - https://localhost:8443/admin.html  → редирект на /login.html
-  - https://localhost:8443/cms.html   → редирект на /login.html
-  - https://localhost:8443/profile.html → редирект на /login.html
-
-Под ролью USER попробовать открыть:
-  - https://localhost:8443/admin.html → 403 Forbidden
-```
-
-### 7. Проверка HTTPS-редиректа
-
-```
-Открыть http://localhost:8081/
-Ожидаемый результат: автоматический редирект на https://localhost:8443/
+1. Войти как ADMIN, открыть /admin.html
+2. Раздел "Пользователи" → "Создать пользователя"
+3. Заполнить: username, password, email, роль (MANAGER)
+Ожидаемый результат: пользователь появился в списке
 ```
 
 ---
 
 ## Устранение неполадок
 
-### Порт 8443 уже занят
+### Локально — порт уже занят
 ```powershell
 Get-Process -Name java | Stop-Process -Force
 ```
@@ -388,27 +392,16 @@ spring.jpa.hibernate.ddl-auto=create
 ```
 После первого запуска вернуть на `update`.
 
-### Ошибка SSL-сертификата
-Если `keystore.p12` отсутствует, сгенерировать заново:
-```bash
-keytool -genkeypair -alias kvant -keyalg RSA -keysize 2048 \
-  -storetype PKCS12 -keystore src/main/resources/keystore.p12 \
-  -validity 3650 -storepass kvant2024 \
-  -dname "CN=localhost, OU=Kvant, O=Kvant, L=Moscow, ST=Moscow, C=RU"
-```
-
 ### Ошибка отправки email
-Проверить:
 - SMTP хост: `smtp.mail.ru`, порт `465`, SSL включён
-- Используется **пароль приложения** (не основной пароль от почты)
+- Использовать **пароль приложения** (не основной пароль от почты)
 
 ---
 
 ## Контакты
 
-- **Сайт:** https://localhost:8443
+- **Сайт:** https://kvant-aga.amvera.io
 - **Email:** info@kvant.ru
-- **Телефон:** +7 (929) 425-97-74
 
 ---
 
