@@ -33,6 +33,48 @@ public class UserManagementController {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createUser(@RequestBody Map<String, String> request) {
+        try {
+            String username = request.get("username");
+            String password = request.get("password");
+            String email = request.get("email");
+
+            if (username == null || username.isBlank() || password == null || password.isBlank() || email == null || email.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Логин, пароль и email обязательны"));
+            }
+            if (userRepository.existsByUsername(username)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Пользователь с таким логином уже существует"));
+            }
+            if (userRepository.existsByEmail(email)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Пользователь с таким email уже существует"));
+            }
+
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setEmail(email);
+            user.setFirstName(request.getOrDefault("firstName", ""));
+            user.setLastName(request.getOrDefault("lastName", ""));
+            user.setPhone(request.getOrDefault("phone", ""));
+            String role = request.getOrDefault("role", "MANAGER");
+            user.setRole(User.Role.valueOf(role));
+            user.setEnabled(true);
+            user.setAccountNonExpired(true);
+            user.setAccountNonLocked(true);
+            user.setCredentialsNonExpired(true);
+
+            userRepository.save(user);
+            logger.info("User created by admin: {}", username);
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            logger.error("Error creating user: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Ошибка создания пользователя: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
