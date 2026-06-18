@@ -1,0 +1,13 @@
+target/
+*.class
+*.jar
+*.war
+*.log
+.DS_Store
+*.p12
+*.jks
+keystore*
+application-local.properties
+.idea/
+*.iml
+.vscode/

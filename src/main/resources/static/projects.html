@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проекты Kvant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb; --primary-dark: #1d4ed8; --secondary: #0f172a;
+            --text-dark: #1e293b; --text-light: #64748b; --text-white: #ffffff;
+            --bg-light: #f8fafc; --bg-white: #ffffff; --border: #e2e8f0;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-xl: 24px; --radius-lg: 16px;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        .header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; max-width: 1280px; margin: 0 auto; }
+        .logo { font-size: 1.75rem; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; letter-spacing: -0.02em; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 28px; border-radius: var(--radius-xl); font-weight: 600; font-size: 0.95rem; text-decoration: none; cursor: pointer; transition: all 0.3s ease; border: none; font-family: inherit; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--text-white); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.4); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: var(--text-white); }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+        .tab { padding: 12px 24px; border-radius: var(--radius-xl); border: 2px solid var(--border); background: var(--bg-white); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: inherit; font-size: 0.95rem; color: var(--text-dark); }
+        .tab.active { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--text-white); border-color: var(--primary); }
+        .tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+        /* Sections */
+        .section { padding: 60px 0; }
+        .section-header { text-align: center; margin-bottom: 40px; }
+        .section-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 12px; }
+        .section-header p { font-size: 1.125rem; color: var(--text-light); max-width: 700px; margin: 0 auto; }
+
+        .category-section { display: none; }
+        .category-section.active { display: block; animation: fadeIn 0.4s ease; }
+
+        /* Gallery */
+        .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .gallery-item { position: relative; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md); background: var(--bg-white); aspect-ratio: 4/3; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .gallery-item:hover img { transform: scale(1.08); }
+        .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; }
+        .gallery-overlay h3 { font-size: 1.25rem; font-weight: 700; }
+        .gallery-overlay p { font-size: 0.9rem; opacity: 0.9; }
+
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-light); text-decoration: none; margin-bottom: 24px; font-weight: 500; transition: color 0.2s; }
+        .back-link:hover { color: var(--primary); }
+
+        /* Footer */
+        .footer { background: var(--bg-white); padding: 40px 0; border-top: 1px solid var(--border); text-align: center; color: var(--text-light); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 1024px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .gallery { grid-template-columns: 1fr; }
+            .section-header h1 { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">Kvant</a>
+            <a href="/" class="btn btn-outline">На главную</a>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h1>Наши проекты</h1>
+                <p>Ознакомьтесь с реализованными объектами во Владивостоке и Уссурийске</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-category="pools">Бассейны</button>
+                <button class="tab" data-category="summer-houses">Летние домики</button>
+                <button class="tab" data-category="verandas">Веранды</button>
+                <button class="tab" data-category="gates">Ворота</button>
+                <button class="tab" data-category="fences">Заборы</button>
+                <button class="tab" data-category="glazing">Остекление</button>
+            </div>
+
+            <div id="pools" class="category-section active">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%201.jpg" alt="Крытый бассейн 1" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Владивосток, частный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%202.jpg" alt="Крытый бассейн 2" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Уссурийск, коттедж</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%203.jpg" alt="Крытый бассейн 3" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Владивосток, загородный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%204.jpg" alt="Крытый бассейн 4" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Уссурийск, таунхаус</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%205.jpg" alt="Крытый бассейн 5" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Владивосток, дача</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%206.jpg" alt="Крытый бассейн 6" loading="lazy">
+                        <div class="gallery-overlay"><h3>Крытый бассейн</h3><p>Уссурийск, частный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8B%D0%B9%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD.jpg" alt="Открытый бассейн" loading="lazy">
+                        <div class="gallery-overlay"><h3>Открытый бассейн</h3><p>Владивосток, дача</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="summer-houses" class="category-section">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9%20%D0%B4%D0%BE%D0%BC%D0%B8%D0%BA.jpg" alt="Летний домик" loading="lazy">
+                        <div class="gallery-overlay"><h3>Летний домик</h3><p>Владивосток, дачный участок</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9%20%D0%B4%D0%BE%D0%BC%D0%B8%D0%BA%201.jpg" alt="Летний домик 1" loading="lazy">
+                        <div class="gallery-overlay"><h3>Летний домик</h3><p>Уссурийск, загородный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9%20%D0%B4%D0%BE%D0%BC%D0%B8%D0%BA%202.jpg" alt="Летний домик 2" loading="lazy">
+                        <div class="gallery-overlay"><h3>Летний домик</h3><p>Уссурийск, Садгород</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="verandas" class="category-section">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BD%D0%B0%D0%B2%D0%B5%D1%81%201.jpg" alt="Навес 1" loading="lazy">
+                        <div class="gallery-overlay"><h3>Навес-веранда</h3><p>Уссурийск, частный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BD%D0%B0%D0%B2%D0%B5%D1%81%202.jpg" alt="Навес 2" loading="lazy">
+                        <div class="gallery-overlay"><h3>Навес-веранда</h3><p>Владивосток, коттедж</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BD%D0%B0%D0%B2%D0%B5%D1%81%203.jpg" alt="Навес 3" loading="lazy">
+                        <div class="gallery-overlay"><h3>Навес-веранда</h3><p>Уссурийск, таунхаус</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="gates" class="category-section">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0.jpg" alt="Ворота" loading="lazy">
+                        <div class="gallery-overlay"><h3>Ворота</h3><p>Владивосток, частный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0%201.jpg" alt="Ворота 1" loading="lazy">
+                        <div class="gallery-overlay"><h3>Ворота</h3><p>Уссурийск, коттедж</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%B0%20%D1%81%20%D0%BF%D1%80%D0%B8%D0%B2%D0%BE%D0%B4%D0%BE%D0%BCjpg.jpg" alt="Ворота с приводом" loading="lazy">
+                        <div class="gallery-overlay"><h3>Ворота с приводом</h3><p>Владивосток, таунхаус</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fences" class="category-section">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%B7%D0%B0%D0%B1%D0%BE%D1%80.jpg" alt="Забор" loading="lazy">
+                        <div class="gallery-overlay"><h3>Забор</h3><p>Уссурийск, дачный участок</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="glazing" class="category-section">
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20.jpg" alt="Остекление" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Владивосток, квартира</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%201.jpg" alt="Остекление 1" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Уссурийск, частный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%202.jpg" alt="Остекление 2" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Владивосток, офис</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%203.jpg" alt="Остекление 3" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Уссурийск, коттедж</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%204.jpg" alt="Остекление 4" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Владивосток, загородный дом</p></div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/images/projects/%D0%BE%D1%81%D1%82%D0%B5%D0%BA%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%205.jpg" alt="Остекление 5" loading="lazy">
+                        <div class="gallery-overlay"><h3>Остекление</h3><p>Уссурийск, ресторан</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Kvant — Строительство домов под ключ | Владивосток, Уссурийск</p>
+        </div>
+    </footer>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.category-section');
+
+        function showCategory(cat) {
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.category === cat));
+            sections.forEach(s => s.classList.toggle('active', s.id === cat));
+            history.replaceState(null, null, '#'+cat);
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => showCategory(tab.dataset.category));
+        });
+
+        const hash = location.hash.replace('#','');
+        if (hash && document.getElementById(hash)) showCategory(hash);
+    </script>
+</body>
+</html>

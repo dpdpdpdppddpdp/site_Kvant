@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - Kvant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            margin-bottom: 32px;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: inherit;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .section {
+            background: var(--bg-white);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group input:disabled {
+            background: var(--bg-light);
+            cursor: not-allowed;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+        th, td { padding:12px 16px; text-align:left; border-bottom:1px solid var(--border); }
+        th { background:var(--bg-light); font-weight:600; font-size:0.8rem; color:var(--text-light); text-transform:uppercase; }
+        tr:hover { background:var(--bg-light); }
+        .status-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .status-NEW { background:#dbeafe; color:#1d4ed8; }
+        .status-CONTACTED { background:#fef3c7; color:#92400e; }
+        .status-CONVERTED { background:#d1fae5; color:#065f46; }
+        .status-CLOSED { background:#fee2e2; color:#991b1b; }
+        .status-IN_PROGRESS { background:#ede9fe; color:#5b21b6; }
+        .empty-state { text-align:center; padding:60px 20px; color:var(--text-light); }
+        .empty-state .icon { font-size:3rem; margin-bottom:16px; }
+
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table { font-size: 0.8rem; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container header-inner">
+            <div class="logo">Kvant</div>
+            <div class="nav">
+                <a href="/" class="nav-link">Сайт</a>
+                <a href="/profile.html" class="nav-link active">Личный кабинет</a>
+                <a href="/logout" class="nav-link">Выйти</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="message"></div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="profile">Профиль</button>
+            <button class="tab" data-tab="my-leads">Мои заявки</button>
+            <button class="tab" data-tab="security">Безопасность</button>
+            <button class="tab" data-tab="info">Информация</button>
+        </div>
+
+        <div id="profile" class="tab-content active">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Личные данные</div>
+                    <button class="btn btn-primary" id="editProfileBtn">Редактировать</button>
+                </div>
+                <form id="profileForm">
+                    <div class="info-grid">
+                        <div class="form-group">
+                            <label for="username">Имя пользователя</label>
+                            <input type="text" id="username" name="username" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="firstName">Имя</label>
+                            <input type="text" id="firstName" name="firstName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Фамилия</label>
+                            <input type="text" id="lastName" name="lastName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Роль</label>
+                            <select id="role" name="role" disabled>
+                                <option value="USER">Пользователь</option>
+                                <option value="ADMIN">Администратор</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="profileActions" style="display: none; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn" id="cancelProfileBtn">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="my-leads" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">История заявок</div>
+                    <button class="btn btn-primary" onclick="loadMyLeads()">Обновить</button>
+                </div>
+                <div id="leadsContent">
+                    <div style="text-align:center;padding:40px;color:var(--text-light);">Загрузка...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="security" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Смена пароля</div>
+                </div>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Текущий пароль</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Новый пароль</label>
+                        <input type="password" id="newPassword" name="newPassword" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Подтверждение пароля</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Изменить пароль</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="info" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Информация аккаунта</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Дата регистрации</div>
+                        <div class="info-value" id="createdAt">-</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Последнее обновление</div>
+                        <div class="info-value" id="updatedAt">-</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Статус аккаунта</div>
+                        <div class="info-value" id="accountStatus">-</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Роль</div>
+                        <div class="info-value" id="roleDisplay">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'my-leads') loadMyLeads();
+            });
+        });
+
+        // Мои заявки
+        const SERVICE_LABELS = {
+            'pool': 'Бассейн', 'summer-house': 'Летний домик',
+            'veranda': 'Веранда', 'gate': 'Ворота',
+            'fence': 'Забор', 'glazing': 'Остекление', '': 'Не указано'
+        };
+        const STATUS_LABELS = {
+            'NEW': 'Новая', 'CONTACTED': 'Контакт установлен',
+            'IN_PROGRESS': 'В работе', 'CONVERTED': 'Завершена', 'CLOSED': 'Закрыта'
+        };
+
+        async function loadMyLeads() {
+            const el = document.getElementById('leadsContent');
+            el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light);">Загрузка...</div>';
+            try {
+                const resp = await fetch('/api/leads/my');
+                if (resp.status === 401) {
+                    el.innerHTML = '<div class="empty-state"><p>Войдите в аккаунт, чтобы увидеть заявки</p></div>';
+                    return;
+                }
+                const leads = await resp.json();
+                if (!leads.length) {
+                    el.innerHTML = '<div class="empty-state"><p>У вас пока нет заявок</p><p style="margin-top:8px;font-size:0.85rem;">Оставьте заявку на <a href="/">главной странице</a></p></div>';
+                    return;
+                }
+                let html = `<table><thead><tr>
+                    <th>#</th><th>Дата</th><th>Услуга</th><th>Статус</th><th>Комментарий</th>
+                </tr></thead><tbody>`;
+                leads.forEach(l => {
+                    const date = new Date(l.createdAt).toLocaleDateString('ru-RU');
+                    const status = l.status || 'NEW';
+                    const service = SERVICE_LABELS[l.serviceType] || l.serviceType || '—';
+                    html += `<tr>
+                        <td>${l.id}</td>
+                        <td>${date}</td>
+                        <td>${service}</td>
+                        <td><span class="status-badge status-${status}">${STATUS_LABELS[status] || status}</span></td>
+                        <td>${l.comment || '—'}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                el.innerHTML = html;
+            } catch(e) {
+                el.innerHTML = '<div class="empty-state"><p>Ошибка загрузки заявок</p></div>';
+            }
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/auth/me');
+                if (!response.ok) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const user = await response.json();
+                
+                document.getElementById('username').value = user.username;
+                document.getElementById('email').value = user.email;
+                document.getElementById('firstName').value = user.firstName || '';
+                document.getElementById('lastName').value = user.lastName || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('role').value = user.role;
+                
+                document.getElementById('createdAt').textContent = new Date(user.createdAt).toLocaleDateString('ru-RU');
+                document.getElementById('updatedAt').textContent = new Date(user.updatedAt).toLocaleDateString('ru-RU');
+                document.getElementById('accountStatus').textContent = user.enabled ? 'Активен' : 'Заблокирован';
+                document.getElementById('roleDisplay').textContent = user.role === 'ADMIN' ? 'Администратор' : 'Пользователь';
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Edit profile
+        document.getElementById('editProfileBtn').addEventListener('click', () => {
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input:not([disabled])');
+            const actions = document.getElementById('profileActions');
+            
+            inputs.forEach(input => {
+                if (input.id !== 'username' && input.id !== 'email' && input.id !== 'role') {
+                    input.disabled = false;
+                }
+            });
+            
+            actions.style.display = 'block';
+            document.getElementById('editProfileBtn').style.display = 'none';
+        });
+
+        document.getElementById('cancelProfileBtn').addEventListener('click', () => {
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input');
+            const actions = document.getElementById('profileActions');
+            
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            actions.style.display = 'none';
+            document.getElementById('editProfileBtn').style.display = 'inline-flex';
+            loadProfile();
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            try {
+                const response = await fetch('/api/auth/update-profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success">Профиль успешно обновлен</div>';
+                    
+                    const inputs = document.querySelectorAll('#profileForm input');
+                    inputs.forEach(input => input.disabled = true);
+                    
+                    document.getElementById('profileActions').style.display = 'none';
+                    document.getElementById('editProfileBtn').style.display = 'inline-flex';
+                    
+                    loadProfile();
+                } else {
+                    const error = await response.json();
+                    messageDiv.innerHTML = '<div class="error">' + (error.error || 'Ошибка обновления профиля') + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">Ошибка соединения</div>';
+            }
+        });
+
+        // Change password
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                messageDiv.innerHTML = '<div class="error">Пароли не совпадают</div>';
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                messageDiv.innerHTML = '<div class="error">Пароль должен содержать минимум 8 символов</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success">Пароль успешно изменен</div>';
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    const error = await response.json();
+                    messageDiv.innerHTML = '<div class="error">' + (error.error || 'Ошибка смены пароля') + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">Ошибка соединения</div>';
+            }
+        });
+
+        // Load profile on page load
+        loadProfile();
+    </script>
+</body>
+</html>

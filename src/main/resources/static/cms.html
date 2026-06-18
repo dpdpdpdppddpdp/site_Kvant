@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS - Kvant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            margin-bottom: 32px;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: inherit;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .section {
+            background: var(--bg-white);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .content-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .content-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .content-key {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .content-section {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background: var(--bg-white);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .content-value {
+            margin-bottom: 12px;
+        }
+
+        .content-value textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .content-value input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Constructor */
+        .constructor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .constructor-hint {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .device-switch {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-light);
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .device-btn {
+            padding: 6px 14px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-btn.active {
+            background: var(--bg-white);
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .preview-frame-wrap {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            overflow: auto;
+        }
+
+        #previewFrame {
+            width: 100%;
+            max-width: 100%;
+            height: 75vh;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-white);
+            transition: max-width 0.3s ease;
+        }
+
+        #previewFrame.tablet { max-width: 768px; }
+        #previewFrame.mobile { max-width: 390px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--text-dark);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        /* Auth panel styles */
+        .auth-panel {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        .auth-logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+        }
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .auth-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        .auth-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .auth-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Форма авторизации -->
+    <div id="authPanel" class="auth-panel" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-logo">Kvant CMS</div>
+            <p class="auth-subtitle">Вход в систему управления контентом</p>
+            <div id="authMessage"></div>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="authUsername">Имя пользователя</label>
+                    <input type="text" id="authUsername" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Пароль</label>
+                    <input type="password" id="authPassword" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary auth-btn">Войти</button>
+            </form>
+            <div class="auth-links">
+                <a href="/">← Вернуться на сайт</a>
+                <a href="/admin.html">Заявки →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной интерфейс CMS -->
+    <div id="cmsPanel" style="display: none;">
+        <div class="header">
+            <div class="container header-inner">
+                <div class="logo">Kvant CMS</div>
+                <div class="nav">
+                    <a href="/admin.html" class="nav-link">Заявки</a>
+                    <a href="/cms.html" class="nav-link active">Контент</a>
+                    <a href="/" class="nav-link">Сайт</a>
+                    <button class="nav-link" onclick="logout()" style="background: none; border: none; cursor: pointer;">Выйти</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-tab="constructor" onclick="switchTab('constructor')">Конструктор</button>
+            <button class="tab" data-tab="list" onclick="switchTab('list')">Список блоков</button>
+        </div>
+
+        <!-- Constructor panel -->
+        <div class="tab-panel active" id="panel-constructor">
+            <div class="section">
+                <div class="constructor-toolbar">
+                    <div class="constructor-hint">
+                        Нажмите на любой текст на странице, чтобы отредактировать его
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="device-switch">
+                            <button class="device-btn active" data-device="desktop" onclick="setDevice('desktop')">ПК</button>
+                            <button class="device-btn" data-device="tablet" onclick="setDevice('tablet')">Планшет</button>
+                            <button class="device-btn" data-device="mobile" onclick="setDevice('mobile')">Телефон</button>
+                        </div>
+                        <button class="btn btn-primary" onclick="reloadPreview()">Обновить</button>
+                    </div>
+                </div>
+                <div class="preview-frame-wrap">
+                    <iframe id="previewFrame" src="/?cms=1"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- List panel -->
+        <div class="tab-panel" id="panel-list">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Управление контентом</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-success" onclick="initializeContent()">
+                            Инициализировать контент
+                        </button>
+                        <button class="btn btn-primary" onclick="loadContent()">
+                            Обновить
+                        </button>
+                    </div>
+                </div>
+                <div id="contentContainer">
+                    <div class="loading">Загрузка...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    </div><!-- /cmsPanel -->
+
+    <script>
+        let allContent = {};
+        let currentUser = null;
+
+        // Проверить авторизацию при загрузке
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me', { redirect: 'manual', credentials: 'include' });
+                if (response.ok) {
+                    currentUser = await response.json();
+                    if (currentUser.role === 'ADMIN') {
+                        showCmsPanel();
+                    } else {
+                        showAuthPanel('Доступ запрещен. Требуется роль администратора.');
+                    }
+                } else {
+                    showAuthPanel();
+                }
+            } catch (e) {
+                showAuthPanel();
+            }
+        }
+
+        function showAuthPanel(message) {
+            document.getElementById('authPanel').style.display = '';
+            document.getElementById('cmsPanel').style.display = 'none';
+            if (message) {
+                document.getElementById('authMessage').innerHTML = `<div class="auth-error">${message}</div>`;
+            }
+        }
+
+        function showCmsPanel() {
+            document.getElementById('authPanel').style.display = 'none';
+            document.getElementById('cmsPanel').style.display = '';
+        }
+
+        // Вход
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+            const msg = document.getElementById('authMessage');
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+                    redirect: 'manual'
+                });
+
+                if (response.ok || response.status === 302) {
+                    msg.innerHTML = '<div class="auth-success">Вход выполнен!</div>';
+                    setTimeout(checkAuth, 500);
+                } else {
+                    msg.innerHTML = '<div class="auth-error">Неверное имя пользователя или пароль</div>';
+                }
+            } catch (error) {
+                msg.innerHTML = '<div class="auth-error">Ошибка соединения</div>';
+            }
+        });
+
+        // Выход
+        async function logout() {
+            try {
+                await fetch('/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            currentUser = null;
+            showAuthPanel();
+            document.getElementById('authUsername').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authMessage').innerHTML = '';
+        }
+
+        // Проверить авторизацию при старте
+        checkAuth();
+
+        async function loadContent() {
+            const container = document.getElementById('contentContainer');
+            container.innerHTML = '<div class="loading">Загрузка...</div>';
+
+            try {
+                const response = await fetch('/api/content');
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                
+                allContent = await response.json();
+                renderContent();
+            } catch (error) {
+                container.innerHTML = '<div class="error">Ошибка загрузки контента: ' + error.message + '</div>';
+            }
+        }
+
+        function renderContent() {
+            const container = document.getElementById('contentContainer');
+            
+            if (Object.keys(allContent).length === 0) {
+                container.innerHTML = '<div class="loading">Контент не найден. Нажмите "Инициализировать контент"</div>';
+                return;
+            }
+
+            // Group by section
+            const sections = {};
+            for (const [key, value] of Object.entries(allContent)) {
+                const section = key.split('_')[0] || 'other';
+                if (!sections[section]) sections[section] = {};
+                sections[section][key] = value;
+            }
+
+            let html = '';
+            for (const [sectionName, sectionContent] of Object.entries(sections)) {
+                html += `<div class="section">
+                    <div class="section-header">
+                        <div class="section-title">${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}</div>
+                    </div>
+                    <div class="content-grid">`;
+                
+                for (const [key, value] of Object.entries(sectionContent)) {
+                    const isLongText = value.length > 100;
+                    html += `<div class="content-card">
+                        <div class="content-card-header">
+                            <span class="content-key">${key}</span>
+                            <span class="content-section">${sectionName}</span>
+                        </div>
+                        <div class="content-value">
+                            ${isLongText 
+                                ? `<textarea id="content-${key}">${value}</textarea>`
+                                : `<input type="text" id="content-${key}" value="${value}">`
+                            }
+                        </div>
+                        <div class="content-actions">
+                            <button class="btn btn-primary" onclick="updateContent('${key}')">Сохранить</button>
+                        </div>
+                    </div>`;
+                }
+                
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function updateContent(key) {
+            const value = document.getElementById(`content-${key}`).value;
+            const ok = await saveContent(key, value);
+            if (ok) {
+                allContent[key] = value;
+                syncPreview(key, value);
+            }
+        }
+
+        // Универсальное сохранение блока
+        async function saveContent(key, value) {
+            try {
+                const response = await fetch(`/api/content/key/${encodeURIComponent(key)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value }),
+                    redirect: 'manual'
+                });
+
+                // Перенаправление на логин => нет прав / не авторизован
+                if (response.type === 'opaqueredirect' || response.status === 0 || response.redirected) {
+                    showToast('Нужна авторизация администратора для сохранения', 'error');
+                    return false;
+                }
+
+                if (response.ok) {
+                    showToast('Блок сохранён', 'success');
+                    return true;
+                } else {
+                    const error = await response.json().catch(() => ({}));
+                    showToast('Ошибка сохранения: ' + (error.error || ('HTTP ' + response.status)), 'error');
+                    return false;
+                }
+            } catch (error) {
+                showToast('Ошибка соединения: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function initializeContent() {
+            if (!confirm('Вы уверены, что хотите инициализировать контент по умолчанию? Это перезапишет существующие значения.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/content/initialize', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showToast('Контент инициализирован', 'success');
+                    loadContent();
+                    reloadPreview();
+                } else {
+                    const error = await response.json().catch(() => ({}));
+                    showToast('Ошибка: ' + (error.error || 'не удалось'), 'error');
+                }
+            } catch (error) {
+                showToast('Ошибка соединения: ' + error.message, 'error');
+            }
+        }
+
+        // ===== Вкладки =====
+        function switchTab(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+            if (name === 'list') loadContent();
+        }
+
+        // ===== Toast =====
+        let toastTimer;
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type ? ' ' + type : '');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.className = 'toast'; }, 2500);
+        }
+
+        // ===== Конструктор: устройства =====
+        function setDevice(device) {
+            const frame = document.getElementById('previewFrame');
+            frame.className = device === 'desktop' ? '' : device;
+            document.querySelectorAll('.device-btn').forEach(b => b.classList.toggle('active', b.dataset.device === device));
+        }
+
+        function reloadPreview() {
+            const frame = document.getElementById('previewFrame');
+            frame.src = '/?cms=1&t=' + Date.now();
+        }
+
+        // Синхронизировать значение блока в превью (без перезагрузки)
+        function syncPreview(key, value) {
+            const frame = document.getElementById('previewFrame');
+            try {
+                const doc = frame.contentDocument;
+                if (!doc) return;
+                doc.querySelectorAll(`[data-content-key="${key}"]`).forEach(el => { el.textContent = value; });
+            } catch (e) { /* кросс-доменный доступ недоступен */ }
+        }
+
+        // ===== Inline-редактирование внутри iframe =====
+        // Теги, текст которых можно редактировать
+        const EDITABLE_TAGS = ['H1','H2','H3','H4','H5','H6','P','SPAN','A','LI','BUTTON','STRONG','EM','TD','TH','LABEL','FIGCAPTION','BLOCKQUOTE','DIV','SMALL','B','I'];
+
+        // Вычислить устойчивый ключ по позиции элемента в DOM (совпадает с index.html)
+        function getAutoKey(el) {
+            const body = el.ownerDocument.body;
+            const parts = [];
+            let node = el;
+            while (node && node !== body && node.parentElement) {
+                const idx = Array.prototype.indexOf.call(node.parentElement.children, node);
+                parts.unshift(idx);
+                node = node.parentElement;
+            }
+            return 'auto_' + parts.join('_');
+        }
+
+        // Можно ли редактировать элемент (лист с текстом, не служебный)
+        function isEditable(el) {
+            if (!EDITABLE_TAGS.includes(el.tagName)) return false;
+            if (el.children.length > 0) return false; // только листовые текстовые элементы
+            const text = el.textContent.trim();
+            if (!text) return false;
+            if (el.closest('script, style, noscript')) return false;
+            return true;
+        }
+
+        function initInlineEditing() {
+            const frame = document.getElementById('previewFrame');
+            const doc = frame.contentDocument;
+            if (!doc) return;
+
+            // Стили подсветки редактируемых блоков
+            if (!doc.getElementById('cms-edit-style')) {
+                const style = doc.createElement('style');
+                style.id = 'cms-edit-style';
+                style.textContent = `
+                    .cms-editable{ outline: 1px dashed rgba(37,99,235,.4); outline-offset: 3px; cursor: text; transition: outline-color .15s, background-color .15s; border-radius: 4px; }
+                    .cms-editable:hover{ outline: 2px dashed #2563eb; background-color: rgba(37,99,235,.06); }
+                    .cms-editing{ outline: 2px solid #2563eb !important; background-color: rgba(37,99,235,.1); }
+                `;
+                doc.head.appendChild(style);
+            }
+
+            let count = 0;
+            doc.querySelectorAll(EDITABLE_TAGS.join(',')).forEach(el => {
+                if (el.dataset.cmsBound) return;
+                if (!isEditable(el)) return;
+                el.dataset.cmsBound = '1';
+                el.classList.add('cms-editable');
+                count++;
+
+                el.addEventListener('click', (e) => {
+                    if (el.isContentEditable) return;
+                    // не переходить по ссылкам / не сабмитить в режиме редактирования
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startEditing(el);
+                });
+            });
+            showToast('Готово к редактированию: ' + count + ' блоков', 'success');
+        }
+
+        function startEditing(el) {
+            // существующий ключ или авто-ключ по позиции
+            const key = el.getAttribute('data-content-key') || getAutoKey(el);
+            const original = el.textContent;
+            el.contentEditable = 'true';
+            el.classList.add('cms-editing');
+            el.focus();
+
+            // выделить весь текст
+            const doc = el.ownerDocument;
+            const range = doc.createRange();
+            range.selectNodeContents(el);
+            const sel = doc.defaultView.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            const finish = async (save) => {
+                el.removeEventListener('blur', onBlur);
+                el.removeEventListener('keydown', onKey);
+                el.contentEditable = 'false';
+                el.classList.remove('cms-editing');
+                const newValue = el.textContent.trim();
+                if (save && newValue && newValue !== original) {
+                    const ok = await saveContent(key, newValue);
+                    if (ok) { allContent[key] = newValue; }
+                    else { el.textContent = original; }
+                } else if (!save) {
+                    el.textContent = original;
+                }
+            };
+
+            const onBlur = () => finish(true);
+            const onKey = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); }
+                else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+            };
+
+            el.addEventListener('blur', onBlur);
+            el.addEventListener('keydown', onKey);
+        }
+
+        // Инициализировать редактирование после загрузки iframe
+        const previewFrame = document.getElementById('previewFrame');
+        previewFrame.addEventListener('load', () => {
+            // даём странице время выполнить loadDynamicContent
+            setTimeout(initInlineEditing, 600);
+        });
+    </script>
+</body>
+</html>
